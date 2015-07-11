@@ -108,9 +108,6 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper
         public static final String COLUMN_NAME_FAVORITE_COLOR = "favorite_color";
     }
 
-    private static final String TEXT_TYPE = " TEXT";
-    private static final String COMMA_SEP = ",";
-
     //Will be: CREATE TABLE person (_id INTEGER PRIMARY KEY,name TEXT,age INTEGER,favorite_color TEXT )
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + PersonEntry.TABLE_NAME + " (" +
             PersonEntry._ID + " INTEGER PRIMARY KEY," +
