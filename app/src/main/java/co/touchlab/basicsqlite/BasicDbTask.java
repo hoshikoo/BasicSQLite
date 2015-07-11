@@ -5,6 +5,7 @@ import java.util.List;
 
 import co.touchlab.android.threading.eventbus.EventBusExt;
 import co.touchlab.android.threading.tasks.Task;
+import co.touchlab.basicsqlite.data.Person;
 
 /**
  * Created by kgalligan on 7/11/15.

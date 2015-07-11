@@ -1,21 +1,24 @@
 package co.touchlab.basicsqlite;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 
-import java.util.ArrayList;
+import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper;
+import com.j256.ormlite.dao.Dao;
+import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.table.TableUtils;
+
+import java.sql.SQLException;
 import java.util.List;
+
+import co.touchlab.basicsqlite.data.Person;
 
 /**
  * Created by kgalligan on 7/11/15.
  */
-public class MySQLiteOpenHelper extends SQLiteOpenHelper
+public class MySQLiteOpenHelper extends OrmLiteSqliteOpenHelper
 {
     public static final String MYDB = "mydb";
-    public static final int VERSION = 1;
+    public static final int VERSION = 2;
 
     private static MySQLiteOpenHelper INSTANCE;
 
@@ -35,86 +38,53 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper
     }
 
     @Override
-    public void onCreate(SQLiteDatabase db)
+    public void onCreate(SQLiteDatabase database, ConnectionSource connectionSource)
     {
-        db.execSQL(SQL_CREATE_ENTRIES);
+        try
+        {
+            TableUtils.createTable(connectionSource, co.touchlab.basicsqlite.data.Person.class);
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+    public void onUpgrade(SQLiteDatabase database, ConnectionSource connectionSource, int oldVersion, int newVersion)
     {
-        db.execSQL(SQL_DELETE_ENTRIES);
-        onCreate(db);
+        try
+        {
+            TableUtils.dropTable(connectionSource, co.touchlab.basicsqlite.data.Person.class, false);
+            onCreate(database, connectionSource);
+        }
+        catch(SQLException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
-    public void insertData()
+    public void insertData() throws SQLException
     {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete(PersonEntry.TABLE_NAME, null, null);
+        Dao<Person, ?> dao = getDao(Person.class);
+
+        dao.delete(dao.deleteBuilder().prepare());
         insertRow("Mike", 27, "blue");
         insertRow("Jen", 32, "orange");
     }
 
-    private void insertRow(String name, int age, String favoriteColor)
+    private void insertRow(String name, int age, String favoriteColor) throws SQLException
     {
-        SQLiteDatabase db = getWritableDatabase();
-
-        ContentValues values = new ContentValues();
-        values.put(PersonEntry.COLUMN_NAME_NAME, name);
-        values.put(PersonEntry.COLUMN_NAME_AGE, age);
-        values.put(PersonEntry.COLUMN_NAME_FAVORITE_COLOR, favoriteColor);
-
-        db.insert(
-                PersonEntry.TABLE_NAME,
-                null,
-                values);
+        Person person = new Person();
+        person.setName(name);
+        person.setAge(age);
+        person.setFavoriteColor(favoriteColor);
+        getDao(Person.class).create(person);
     }
 
-    public List<Person> loadData()
+    public List<Person> loadData() throws SQLException
     {
-        String[] projection = {
-                PersonEntry._ID,
-                PersonEntry.COLUMN_NAME_NAME,
-                PersonEntry.COLUMN_NAME_AGE,
-                PersonEntry.COLUMN_NAME_FAVORITE_COLOR
-        };
-
-        SQLiteDatabase db = getWritableDatabase();
-
-        List<Person> persons = new ArrayList<>();
-
-        Cursor cursor = db.query(PersonEntry.TABLE_NAME, projection, null, null, null, null, null);
-        while(cursor.moveToNext())
-        {
-            persons.add(new Person(cursor.getInt(cursor.getColumnIndex(PersonEntry._ID)),
-                                   cursor.getString(
-                                           cursor.getColumnIndex(PersonEntry.COLUMN_NAME_NAME)),
-                                   cursor.getInt(
-                                           cursor.getColumnIndex(PersonEntry.COLUMN_NAME_AGE)),
-                                   cursor.getString(cursor.getColumnIndex(
-                                           PersonEntry.COLUMN_NAME_FAVORITE_COLOR))));
-        }
-
-        cursor.close();
-
-        return persons;
+        return getDao(Person.class).queryForAll();
     }
 
-    public static abstract class PersonEntry implements BaseColumns
-    {
-        public static final String TABLE_NAME                 = "person";
-        public static final String COLUMN_NAME_NAME           = "name";
-        public static final String COLUMN_NAME_AGE            = "age";
-        public static final String COLUMN_NAME_FAVORITE_COLOR = "favorite_color";
-    }
-
-    //Will be: CREATE TABLE person (_id INTEGER PRIMARY KEY,name TEXT,age INTEGER,favorite_color TEXT )
-    private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + PersonEntry.TABLE_NAME + " (" +
-            PersonEntry._ID + " INTEGER PRIMARY KEY," +
-            PersonEntry.COLUMN_NAME_NAME + " TEXT," +
-            PersonEntry.COLUMN_NAME_AGE + " INTEGER," +
-            PersonEntry.COLUMN_NAME_FAVORITE_COLOR + " TEXT" +
-            " )";
-
-    private static final String SQL_DELETE_ENTRIES = "DROP TABLE IF EXISTS " + PersonEntry.TABLE_NAME;
 }

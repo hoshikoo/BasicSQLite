@@ -2,13 +2,12 @@ package co.touchlab.basicsqlite;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import co.touchlab.android.threading.eventbus.EventBusExt;
 import co.touchlab.android.threading.tasks.TaskQueue;
+import co.touchlab.basicsqlite.data.Person;
 
 
 public class MainActivity extends Activity
