@@ -5,6 +5,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import co.touchlab.android.threading.tasks.TaskQueue;
+
 
 public class MainActivity extends Activity
 {
@@ -14,6 +16,7 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        TaskQueue.loadQueueDefault(this).execute(new BasicDbTask());
     }
 
 

@@ -41,6 +41,8 @@ public class MySQLiteOpenHelper extends SQLiteOpenHelper
 
     private static final String TEXT_TYPE          = " TEXT";
     private static final String COMMA_SEP          = ",";
+
+    //Will be: CREATE TABLE person (_id INTEGER PRIMARY KEY,name TEXT,age INTEGER,favorite_color TEXT )
     private static final String SQL_CREATE_ENTRIES = "CREATE TABLE " + PersonEntry.TABLE_NAME + " (" +
             PersonEntry._ID + " INTEGER PRIMARY KEY," +
             PersonEntry.COLUMN_NAME_NAME + " TEXT," +
