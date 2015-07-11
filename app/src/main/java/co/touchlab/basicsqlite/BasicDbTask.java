@@ -1,7 +1,9 @@
 package co.touchlab.basicsqlite;
 import android.content.Context;
-import android.widget.Toast;
 
+import java.util.List;
+
+import co.touchlab.android.threading.eventbus.EventBusExt;
 import co.touchlab.android.threading.tasks.Task;
 
 /**
@@ -9,21 +11,22 @@ import co.touchlab.android.threading.tasks.Task;
  */
 public class BasicDbTask extends Task
 {
+    public List<Person> persons;
+
     @Override
     protected void run(Context context) throws Throwable
     {
-        MySQLiteOpenHelper mySQLiteOpenHelper = new MySQLiteOpenHelper(context);
+        MySQLiteOpenHelper mySQLiteOpenHelper = MySQLiteOpenHelper.getInstance(context);
 
-        //This will make it open
-        mySQLiteOpenHelper.getWritableDatabase();
+        mySQLiteOpenHelper.insertData();
 
-        mySQLiteOpenHelper.close();
+        persons = mySQLiteOpenHelper.loadData();
     }
 
     @Override
     protected void onComplete(Context context)
     {
-        Toast.makeText(context, "Done!", Toast.LENGTH_LONG).show();
+        EventBusExt.getDefault().post(this);
     }
 
     @Override
